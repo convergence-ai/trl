@@ -32,6 +32,7 @@ from transformers import (
     AutoModelForCausalLM,
     AutoModelForSequenceClassification,
     AutoTokenizer,
+    DataCollator,
     GenerationConfig,
     PreTrainedModel,
     PreTrainedTokenizerBase,
@@ -199,6 +200,7 @@ class GRPOTrainer(Trainer):
         self,
         model: Union[str, PreTrainedModel],
         reward_funcs: Union[RewardFunc, list[RewardFunc]],
+        data_collator: Optional[DataCollator] = None,  # type: ignore
         args: GRPOConfig = None,
         train_dataset: Optional[Union[Dataset, IterableDataset]] = None,
         eval_dataset: Optional[Union[Dataset, IterableDataset, dict[str, Union[Dataset, IterableDataset]]]] = None,
@@ -304,8 +306,10 @@ class GRPOTrainer(Trainer):
         self.reward_processing_classes = reward_processing_classes
 
         # Data collator
-        def data_collator(features):  # No data collation is needed in GRPO
-            return features
+        if data_collator is None:
+
+            def data_collator(features):  # No data collation is needed in GRPO
+                return features
 
         # Training arguments
         self.max_prompt_length = args.max_prompt_length
